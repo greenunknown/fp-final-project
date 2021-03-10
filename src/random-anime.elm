@@ -111,11 +111,12 @@ viewGif model =
 getRandomCatGif : Cmd Msg
 getRandomCatGif =
   Http.get
-    { url = "https://api.jikan.moe/v3/anime/1" --++ fromInt (Random.int 1 6) --"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
+    { url = "https://api.jikan.moe/v3/anime/1" --++ String.fromInt (Random.int 1 6) --"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
     , expect = Http.expectJson GotGif gifDecoder
     }
 
 
 gifDecoder : Decoder String
 gifDecoder =
-  field "data" (field "image_url" string)
+  -- field "data" (field "image_url" string)
+  field "image_url" string
