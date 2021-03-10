@@ -10,7 +10,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, string)
-
+import Random
 
 
 -- MAIN
@@ -111,7 +111,7 @@ viewGif model =
 getRandomCatGif : Cmd Msg
 getRandomCatGif =
   Http.get
-    { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
+    { url = "https://api.jikan.moe/v3/anime/1" --++ fromInt (Random.int 1 6) --"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
     , expect = Http.expectJson GotGif gifDecoder
     }
 
