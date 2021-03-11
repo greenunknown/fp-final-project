@@ -1,4 +1,4 @@
--- Press a button to send a GET request for random cat GIFs.
+-- Press a button to send a GET request for random anime.
 --
 -- Read how it works:
 --   https://guide.elm-lang.org/effects/json.html
@@ -11,7 +11,10 @@ import Html.Events exposing (..)
 import Http
 import Json.Decode exposing (Decoder, field, string)
 import Random
-
+import Url.Builder exposing
+  ( absolute, relative, crossOrigin, custom, Root(..)
+  , QueryParameter, string, int, toQuery
+  )
 
 -- MAIN
 
@@ -37,7 +40,7 @@ type Model
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  (Loading, getRandomCatGif)
+  (Loading, gotRandomAnime)
 
 
 
@@ -46,16 +49,16 @@ init _ =
 
 type Msg
   = MorePlease
-  | GotGif (Result Http.Error String)
+  | GotImg (Result Http.Error String)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      (Loading, getRandomCatGif)
+      (Loading, gotRandomAnime)
 
-    GotGif result ->
+    GotImg result ->
       case result of
         Ok url ->
           (Success url, Cmd.none)
@@ -80,7 +83,7 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    [ h2 [] [ text "Random Cats" ]
+    [ h2 [] [ text "Random Anime" ]
     , viewGif model
     ]
 
@@ -90,7 +93,7 @@ viewGif model =
   case model of
     Failure ->
       div []
-        [ text "I could not load a random cat for some reason. "
+        [ text "I could not load a random anime for some reason. "
         , button [ onClick MorePlease ] [ text "Try Again!" ]
         ]
 
@@ -99,7 +102,7 @@ viewGif model =
 
     Success url ->
       div []
-        [ button [ onClick MorePlease, style "display" "block" ] [ text "More Please!" ]
+        [ button [ onClick MorePlease, style "display" "block" ] [ text "Randomize" ]
         , img [ src url ] []
         ]
 
@@ -107,16 +110,23 @@ viewGif model =
 
 -- HTTP
 
+-- randomAnime = Random.int 1 10509 -- 10509 is an experimental upper limit of the number of anime
+-- seed0 = Random.initialSeed 42
 
-getRandomCatGif : Cmd Msg
-getRandomCatGif =
+roll : Random.Generator Int
+roll = 
+  Random.int 1 6
+
+gotRandomAnime : Cmd Msg
+gotRandomAnime =
   Http.get
-    { url = "https://api.jikan.moe/v3/anime/1" --++ String.fromInt (Random.int 1 6) --"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
-    , expect = Http.expectJson GotGif gifDecoder
+    { url = crossOrigin "https://api.jikan.moe/v3/anime/" [roll] []
+    , expect = Http.expectJson GotImg animeDecoder
     }
 
 
-gifDecoder : Decoder String
-gifDecoder =
+animeDecoder : Decoder String
+animeDecoder =
   -- field "data" (field "image_url" string)
-  field "image_url" string
+  field "image_url" Json.Decode.string
+  -- field "top" (field "image_url" string)
