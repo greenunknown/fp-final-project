@@ -1,8 +1,4 @@
 -- Press a button to send a GET request for random anime.
---
--- Read how it works:
---   https://guide.elm-lang.org/effects/json.html
---
 
 import Browser
 import Html exposing (..)
@@ -54,7 +50,7 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime)
+  ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime {status = Loading, seed = Random.initialSeed 0})
 
 
 -- UPDATE
@@ -69,15 +65,19 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      (Loading, gotRandomAnime)
+      -- (Loading, gotRandomAnime)
+      ({status = Loading, seed = model.seed}, gotRandomAnime model)
+
 
     GotImg result ->
       case result of
         Ok url ->
-          (Success url, Cmd.none)
+          -- (Success url, Cmd.none)
+          ({status = Success url, seed = model.seed}, Cmd.none)
 
         Err _ ->
-          (Failure, Cmd.none)
+          -- (Failure, Cmd.none)
+          ({status = Failure, seed = model.seed}, Cmd.none)
 
 
 
@@ -97,13 +97,13 @@ view : Model -> Html Msg
 view model =
   div []
     [ h2 [] [ text "Random Anime" ]
-    , viewGif model
+    , viewImg model
     ]
 
 
-viewGif : Model -> Html Msg
-viewGif model =
-  case model of
+viewImg : Model -> Html Msg
+viewImg model =
+  case model.status of
     Failure ->
       div []
         [ text "I could not load a random anime for some reason. "
@@ -123,15 +123,12 @@ viewGif model =
 
 -- HTTP
 
--- randomAnime = Random.int 1 10509 -- 10509 is an experimental upper limit of the number of anime
--- seed0 = Random.initialSeed 42
-
 -- Random help from Augustin82 and wolfadex: https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
 roll : Random.Generator Int
 roll = 
-  Random.int 1 6
+  Random.int 1 10509 -- 10509 is an experimental upper limit of the number of anime
 
-randomIntToString : Random.Generator Int -> String --Random.Generator String
+randomIntToString : Random.Generator Int -> Random.Generator String --Random.Generator String
 randomIntToString randomInt =
     Random.map String.fromInt randomInt
 
@@ -142,11 +139,11 @@ randomIntToString randomInt =
 --     , expect = Http.expectJson GotImg animeDecoder
 --     }
 
-gotRandomAnime : Cmd Msg
-gotRandomAnime =
+gotRandomAnime : Model -> Cmd Msg
+gotRandomAnime model =
   let
     ( randStr, nextSeed ) =
-        Random.step (randomIntToString roll) model --model.seed
+        Random.step (randomIntToString roll) model.seed
   in
   ( { model | seed = nextSeed }
   , Http.get
@@ -159,4 +156,3 @@ gotRandomAnime =
 animeDecoder : Decoder String
 animeDecoder =
   field "image_url" Json.Decode.string
-  -- field "top" (field "image_url" string)
