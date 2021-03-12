@@ -50,8 +50,8 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime {status = Loading, seed = Random.initialSeed 0})
-
+  -- ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime {status = Loading, seed = Random.initialSeed 0})
+  let (newSeed, cmd) = gotRandomAnime in ({status = Loading, seed = Random.initialSeed 0}, cmd)
 
 -- UPDATE
 
@@ -66,8 +66,8 @@ update msg model =
   case msg of
     MorePlease ->
       -- (Loading, gotRandomAnime)
-      ({status = Loading, seed = model.seed}, gotRandomAnime model)
-
+      -- ({status = Loading, seed = model.seed}, gotRandomAnime model)
+      let (newSeed, cmd) = gotRandomAnime in (newSeed, cmd)
 
     GotImg result ->
       case result of
@@ -139,7 +139,7 @@ randomIntToString randomInt =
 --     , expect = Http.expectJson GotImg animeDecoder
 --     }
 
-gotRandomAnime : Model -> Cmd Msg
+gotRandomAnime : Model -> (Model, Cmd Msg) --Cmd Msg
 gotRandomAnime model =
   let
     ( randStr, nextSeed ) =
