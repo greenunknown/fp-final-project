@@ -130,7 +130,7 @@ viewGif model =
 getRandomCatGif : Model -> Cmd Msg
 getRandomCatGif model =
   Http.get
-    { url = "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
+    { url = "https://kitsu.io/api/edge/anime/1"--"https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cat"
     , expect = Http.expectJson GotGif gifDecoder
     }
 
@@ -142,9 +142,10 @@ getRandomCatGif model =
 gifDecoder : Decoder GifObj
 gifDecoder =
   map2 GifObj
-    (field "data" (field "id" string))
-    (field "data" (field "image_url" string))
-
+    -- (field "data" (field "id" string))
+    --(field "data" (field "image_url" string))
+    (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
+    (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
 
 -- viewGifObj : GifObj -> Html Msg
 -- viewGifObj gifobj =
