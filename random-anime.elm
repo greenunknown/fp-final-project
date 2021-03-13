@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string)
+import Json.Decode exposing (Decoder, field, string, map2)
 import Random
 import Url.Builder exposing
   ( absolute, relative, crossOrigin, custom, Root(..)
@@ -36,10 +36,16 @@ main =
 type Status
   = Failure
     | Loading
-    | Success String
+    | Success AnimeObj
+
+type alias AnimeObj =
+  { id : String
+  , imageUrl : String
+  }
 
 type alias Model = 
   { status : Status
+  , animeObj : AnimeObj
   , seed : Random.Seed
   }
 
@@ -51,14 +57,14 @@ type alias Model =
 init : () -> (Model, Cmd Msg)
 init _ =
   -- ({status = Loading, seed = Random.initialSeed 0}, getRandomAnime {status = Loading, seed = Random.initialSeed 0})
-  let (newSeed, cmd) = getRandomAnime {status = Loading, seed = Random.initialSeed 0} in (newSeed, cmd)
+  let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", imageUrl = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
 
 
 type Msg
   = MorePlease
-  | GotImg (Result Http.Error String)
+  | GotImg (Result Http.Error AnimeObj)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -71,10 +77,10 @@ update msg model =
     GotImg result ->
       case result of
         Ok url ->
-          ({status = Success url, seed = model.seed}, Cmd.none)
+          ({status = Success url, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
         Err _ ->
-          ({status = Failure, seed = model.seed}, Cmd.none)
+          ({status = Failure, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
 
 
@@ -103,7 +109,7 @@ viewImg model =
   case model.status of
     Failure ->
       div []
-        [ text "I could not load a random anime for some reason. "
+        [ text "I could not load a random anime for some reason. 😅"
         , button [ onClick MorePlease ] [ text "Try Again!" ]
         ]
 
@@ -113,7 +119,8 @@ viewImg model =
     Success url ->
       div []
         [ button [ onClick MorePlease, style "display" "block" ] [ text "Randomize" ]
-        , img [ src url ] []
+        , h2 [] [text url.id]
+        , img [ src url.imageUrl ] []
         ]
 
 
@@ -144,7 +151,11 @@ getRandomAnime model =
   )
 
 
-animeDecoder : Decoder String
+animeDecoder : Decoder AnimeObj
 animeDecoder =
-  -- field "image_url" Json.Decode.string
-  field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string)))
+  -- field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string)))
+  map2 AnimeObj
+    -- (field "data" (field "id" string))
+    --(field "data" (field "image_url" string))
+    (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
+    (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
