@@ -1,4 +1,10 @@
 -- Press a button to send a GET request for random anime.
+-- Author: Brandon Le
+-- Contributions: 
+--  Instructor Casamento
+--  Help with random from Augustin82 and wolfadex: 
+--    https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
+--  
 
 import Browser
 import Html exposing (..)
@@ -28,11 +34,6 @@ main =
 -- MODEL
 
 
--- type Model
---   = Failure
---   | Loading
---   | Success String
-
 type Status
   = Failure
     | Loading
@@ -50,13 +51,8 @@ type alias Model =
   }
 
 
--- init : () -> (Model, Cmd Msg)
--- init _ =
---   (Loading, getRandomAnime)
-
 init : () -> (Model, Cmd Msg)
 init _ =
-  -- ({status = Loading, seed = Random.initialSeed 0}, getRandomAnime {status = Loading, seed = Random.initialSeed 0})
   let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", imageUrl = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
@@ -71,7 +67,6 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      -- ({status = Loading, seed = model.seed}, getRandomAnime model)
       let (newSeed, cmd) = getRandomAnime model in (newSeed, cmd)
 
     GotImg result ->
@@ -127,10 +122,9 @@ viewImg model =
 
 -- HTTP
 
--- Random help from Augustin82 and wolfadex: https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
 roll : Random.Generator Int
 roll = 
-  Random.int 1 6--14267 --40000 -- 10509 is an experimental upper limit of the number of anime
+  Random.int 1 6--14267 is an experimental upper limit of the number of anime
 
 randomIntToString : Random.Generator Int -> Random.Generator String --Random.Generator String
 randomIntToString randomInt =
@@ -150,12 +144,8 @@ getRandomAnime model =
       }
   )
 
-
 animeDecoder : Decoder AnimeObj
 animeDecoder =
-  -- field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string)))
   map2 AnimeObj
-    -- (field "data" (field "id" string))
-    --(field "data" (field "image_url" string))
     (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
     (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
