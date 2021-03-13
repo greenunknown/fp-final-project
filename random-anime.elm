@@ -11,7 +11,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string, map2)
+import Json.Decode exposing (Decoder, field, string, map2, map3)
 import Random
 import Url.Builder exposing
   ( absolute, relative, crossOrigin, custom, Root(..)
@@ -34,13 +34,20 @@ main =
 -- MODEL
 
 
+-- type Status
+--   = Failure
+--     | Loading
+--     | Success AnimeObj
+
+
 type Status
-  = Failure
+  = Failure String
     | Loading
     | Success AnimeObj
 
 type alias AnimeObj =
-  { id : String
+  { id : String 
+  , title : String
   , imageUrl : String
   }
 
@@ -53,7 +60,7 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", imageUrl = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
+  let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", title = "", imageUrl = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
 
@@ -74,10 +81,29 @@ update msg model =
         Ok url ->
           ({status = Success url, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
-        Err _ ->
-          ({status = Failure, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
+        -- Err _ ->
+        --   ({status = Failure, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
+        Err err ->
+          ({status = Failure (errorToString err), animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
 
+errorToString : Http.Error -> String
+errorToString error =
+    case error of
+        Http.BadUrl url ->
+            "The URL " ++ url ++ " was invalid"
+        Http.Timeout ->
+            "Unable to reach the server, try again"
+        Http.NetworkError ->
+            "Unable to reach the server, check your network connection"
+        Http.BadStatus 500 ->
+            "The server had a problem, try again later"
+        Http.BadStatus 400 ->
+            "Verify your information and try again"
+        Http.BadStatus _ ->
+            "Unknown error"
+        Http.BadBody errorMessage ->
+            errorMessage
 
 -- SUBSCRIPTIONS
 
@@ -102,9 +128,15 @@ view model =
 viewImg : Model -> Html Msg
 viewImg model =
   case model.status of
-    Failure ->
+    -- Failure ->
+    --   div []
+    --     [ text "I could not load a random anime for some reason. 😅"
+    --     , button [ onClick MorePlease ] [ text "Try Again!" ]
+    --     ]
+
+    Failure err ->
       div []
-        [ text "I could not load a random anime for some reason. 😅"
+        [ text ("I could not load a random anime for some reason. 😅" ++ err)
         , button [ onClick MorePlease ] [ text "Try Again!" ]
         ]
 
@@ -114,7 +146,8 @@ viewImg model =
     Success url ->
       div []
         [ button [ onClick MorePlease, style "display" "block" ] [ text "Randomize" ]
-        , h2 [] [text url.id]
+        , text ("Anime ID: " ++ url.id)
+        , h2 [] [ text url.title ]
         , img [ src url.imageUrl ] []
         ]
 
@@ -124,9 +157,9 @@ viewImg model =
 
 roll : Random.Generator Int
 roll = 
-  Random.int 1 6--14267 is an experimental upper limit of the number of anime
+  Random.int 1 14267 -- an experimental upper limit of the number of anime
 
-randomIntToString : Random.Generator Int -> Random.Generator String --Random.Generator String
+randomIntToString : Random.Generator Int -> Random.Generator String
 randomIntToString randomInt =
     Random.map String.fromInt randomInt
 
@@ -146,6 +179,8 @@ getRandomAnime model =
 
 animeDecoder : Decoder AnimeObj
 animeDecoder =
-  map2 AnimeObj
-    (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
+  map3 AnimeObj
+    (field "data" (field "id" Json.Decode.string))
+    (field "data" (field "attributes" (field "canonicalTitle" Json.Decode.string)))
+    -- (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
     (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
