@@ -1,10 +1,11 @@
 -- Press a button to send a GET request for random anime.
 -- Author: Brandon Le
 -- Contributions: 
---  Instructor Casamento
+--  Instructor Casamento for help on the randomize mechanism and general Elm help
 --  Help with random from Augustin82 and wolfadex: 
 --    https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
---  
+--  Http error to string by bdukes
+--    https://stackoverflow.com/questions/56442885/error-when-convert-http-error-to-string-with-tostring-in-elm-0-19
 
 import Browser
 import Html exposing (..)
@@ -69,6 +70,7 @@ init _ =
 type Msg
   = MorePlease
   | GotImg (Result Http.Error AnimeObj)
+  -- | GotSadness (Result Http.Error String)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -121,7 +123,7 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    [ h2 [] [ text "Random Anime" ]
+    [ h1 [] [ text "Random Anime" ]
     , viewImg model
     ]
 
@@ -137,8 +139,10 @@ viewImg model =
 
     Failure err ->
       div []
-        [ text ("I could not load a random anime for some reason. 😅" ++ err)
+        [ text ("I could not load a random anime for some reason. You've found an empty entry! 😅 \nError: " ++ err)
         , button [ onClick MorePlease ] [ text "Try Again!" ]
+        , img [ src "sadness.gif"] []
+        , text "Image Source: https://giphy.com/gifs/japan-crying-3ov9jUBdDA5FFFITOU"
         ]
 
     Loading ->
@@ -187,3 +191,13 @@ animeDecoder =
     -- (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
     (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
     (field "data" (field "attributes" (field "description" Json.Decode.string)))
+
+-- getSadness : Cmd Msg
+-- getSadness :
+--   Http.get
+--   { url = "https://media.giphy.com/media/3ov9jUBdDA5FFFITOU/giphy.gif"
+--   , expect = Http.expectJson GotGif sadnessDecoder
+--   }
+
+-- sadnessDecoder : Decoder String
+--   field
