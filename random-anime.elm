@@ -51,7 +51,7 @@ type alias Model =
 init : () -> (Model, Cmd Msg)
 init _ =
   -- ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime {status = Loading, seed = Random.initialSeed 0})
-  let (newSeed, cmd) = gotRandomAnime in ({status = Loading, seed = Random.initialSeed 0}, cmd)
+  let (newSeed, cmd) = gotRandomAnime {status = Loading, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
 
@@ -65,18 +65,15 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      -- (Loading, gotRandomAnime)
       -- ({status = Loading, seed = model.seed}, gotRandomAnime model)
-      let (newSeed, cmd) = gotRandomAnime in (newSeed, cmd)
+      let (newSeed, cmd) = gotRandomAnime model in (newSeed, cmd)
 
     GotImg result ->
       case result of
         Ok url ->
-          -- (Success url, Cmd.none)
           ({status = Success url, seed = model.seed}, Cmd.none)
 
         Err _ ->
-          -- (Failure, Cmd.none)
           ({status = Failure, seed = model.seed}, Cmd.none)
 
 
@@ -126,20 +123,13 @@ viewImg model =
 -- Random help from Augustin82 and wolfadex: https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
 roll : Random.Generator Int
 roll = 
-  Random.int 1 10509 -- 10509 is an experimental upper limit of the number of anime
+  Random.int 1 14267 --40000 -- 10509 is an experimental upper limit of the number of anime
 
 randomIntToString : Random.Generator Int -> Random.Generator String --Random.Generator String
 randomIntToString randomInt =
     Random.map String.fromInt randomInt
 
--- gotRandomAnime : Cmd Msg
--- gotRandomAnime =
---   Http.get
---     { url = crossOrigin "https://api.jikan.moe/v3/anime/" [Random.generate (randomIntToString roll)] []
---     , expect = Http.expectJson GotImg animeDecoder
---     }
-
-gotRandomAnime : Model -> (Model, Cmd Msg) --Cmd Msg
+gotRandomAnime : Model -> (Model, Cmd Msg)
 gotRandomAnime model =
   let
     ( randStr, nextSeed ) =
@@ -147,7 +137,8 @@ gotRandomAnime model =
   in
   ( { model | seed = nextSeed }
   , Http.get
-      { url = crossOrigin "https://api.jikan.moe/v3/anime/" [randStr] []
+      -- { url = crossOrigin "https://api.jikan.moe/v3/anime" [randStr] []
+      { url = crossOrigin "https://kitsu.io/api/edge/anime" [randStr] []
       , expect = Http.expectJson GotImg animeDecoder
       }
   )
@@ -155,4 +146,5 @@ gotRandomAnime model =
 
 animeDecoder : Decoder String
 animeDecoder =
-  field "image_url" Json.Decode.string
+  -- field "image_url" Json.Decode.string
+  field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string)))
