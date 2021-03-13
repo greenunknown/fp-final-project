@@ -35,12 +35,6 @@ main =
 -- MODEL
 
 
--- type Status
---   = Failure
---     | Loading
---     | Success AnimeObj
-
-
 type Status
   = Failure String
     | Loading
@@ -70,7 +64,6 @@ init _ =
 type Msg
   = MorePlease
   | GotImg (Result Http.Error AnimeObj)
-  -- | GotSadness (Result Http.Error String)
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -84,8 +77,6 @@ update msg model =
         Ok url ->
           ({status = Success url, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
-        -- Err _ ->
-        --   ({status = Failure, animeObj = model.animeObj, seed = model.seed}, Cmd.none)
         Err err ->
           ({status = Failure (errorToString err), animeObj = model.animeObj, seed = model.seed}, Cmd.none)
 
@@ -131,12 +122,6 @@ view model =
 viewImg : Model -> Html Msg
 viewImg model =
   case model.status of
-    -- Failure ->
-    --   div []
-    --     [ text "I could not load a random anime for some reason. 😅"
-    --     , button [ onClick MorePlease ] [ text "Try Again!" ]
-    --     ]
-
     Failure err ->
       div []
         [ text ("I could not load a random anime for some reason. You've found an empty entry! 😅 \nError: " ++ err)
@@ -177,7 +162,6 @@ getRandomAnime model =
   in
   ( { model | seed = nextSeed }
   , Http.get
-      -- { url = crossOrigin "https://api.jikan.moe/v3/anime" [randStr] []
       { url = crossOrigin "https://kitsu.io/api/edge/anime" [randStr] []
       , expect = Http.expectJson GotImg animeDecoder
       }
@@ -188,16 +172,5 @@ animeDecoder =
   map4 AnimeObj
     (field "data" (field "id" Json.Decode.string))
     (field "data" (field "attributes" (field "canonicalTitle" Json.Decode.string)))
-    -- (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
     (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
     (field "data" (field "attributes" (field "description" Json.Decode.string)))
-
--- getSadness : Cmd Msg
--- getSadness :
---   Http.get
---   { url = "https://media.giphy.com/media/3ov9jUBdDA5FFFITOU/giphy.gif"
---   , expect = Http.expectJson GotGif sadnessDecoder
---   }
-
--- sadnessDecoder : Decoder String
---   field
