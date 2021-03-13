@@ -11,7 +11,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Json.Decode exposing (Decoder, field, string, map2, map3)
+import Json.Decode exposing (Decoder, field, string, map2, map3, map4)
 import Random
 import Url.Builder exposing
   ( absolute, relative, crossOrigin, custom, Root(..)
@@ -49,6 +49,7 @@ type alias AnimeObj =
   { id : String 
   , title : String
   , imageUrl : String
+  , description : String
   }
 
 type alias Model = 
@@ -60,7 +61,7 @@ type alias Model =
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", title = "", imageUrl = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
+  let (newSeed, cmd) = getRandomAnime {status = Loading, animeObj = {id = "", title = "", imageUrl = "", description = ""}, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
 
@@ -149,6 +150,7 @@ viewImg model =
         , text ("Anime ID: " ++ url.id)
         , h2 [] [ text url.title ]
         , img [ src url.imageUrl ] []
+        , text url.description
         ]
 
 
@@ -179,8 +181,9 @@ getRandomAnime model =
 
 animeDecoder : Decoder AnimeObj
 animeDecoder =
-  map3 AnimeObj
+  map4 AnimeObj
     (field "data" (field "id" Json.Decode.string))
     (field "data" (field "attributes" (field "canonicalTitle" Json.Decode.string)))
     -- (field "data" (field "attributes" (field "titles" (field "en" Json.Decode.string))))
     (field "data" (field "attributes" (field "posterImage" (field "medium" Json.Decode.string))))
+    (field "data" (field "attributes" (field "description" Json.Decode.string)))
