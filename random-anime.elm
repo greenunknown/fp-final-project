@@ -46,12 +46,12 @@ type alias Model =
 
 -- init : () -> (Model, Cmd Msg)
 -- init _ =
---   (Loading, gotRandomAnime)
+--   (Loading, getRandomAnime)
 
 init : () -> (Model, Cmd Msg)
 init _ =
-  -- ({status = Loading, seed = Random.initialSeed 0}, gotRandomAnime {status = Loading, seed = Random.initialSeed 0})
-  let (newSeed, cmd) = gotRandomAnime {status = Loading, seed = Random.initialSeed 0} in (newSeed, cmd)
+  -- ({status = Loading, seed = Random.initialSeed 0}, getRandomAnime {status = Loading, seed = Random.initialSeed 0})
+  let (newSeed, cmd) = getRandomAnime {status = Loading, seed = Random.initialSeed 0} in (newSeed, cmd)
 
 -- UPDATE
 
@@ -65,8 +65,8 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     MorePlease ->
-      -- ({status = Loading, seed = model.seed}, gotRandomAnime model)
-      let (newSeed, cmd) = gotRandomAnime model in (newSeed, cmd)
+      -- ({status = Loading, seed = model.seed}, getRandomAnime model)
+      let (newSeed, cmd) = getRandomAnime model in (newSeed, cmd)
 
     GotImg result ->
       case result of
@@ -123,14 +123,14 @@ viewImg model =
 -- Random help from Augustin82 and wolfadex: https://discourse.elm-lang.org/t/convert-random-int-to-string-for-use-in-url-builder/7081/3
 roll : Random.Generator Int
 roll = 
-  Random.int 1 14267 --40000 -- 10509 is an experimental upper limit of the number of anime
+  Random.int 1 6--14267 --40000 -- 10509 is an experimental upper limit of the number of anime
 
 randomIntToString : Random.Generator Int -> Random.Generator String --Random.Generator String
 randomIntToString randomInt =
     Random.map String.fromInt randomInt
 
-gotRandomAnime : Model -> (Model, Cmd Msg)
-gotRandomAnime model =
+getRandomAnime : Model -> (Model, Cmd Msg)
+getRandomAnime model =
   let
     ( randStr, nextSeed ) =
         Random.step (randomIntToString roll) model.seed
