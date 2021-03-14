@@ -127,7 +127,7 @@ viewImg model =
       div []
         [ text ("I could not load a random anime for some reason. You've found an empty entry! 😅 \nError: " ++ err)
         , button [ onClick MorePlease ] [ text "Try Again!" ]
-        , img [ src "sadness.gif"] []
+        , img [ src "src/sadness.gif"] []
         , text "Image Source: https://giphy.com/gifs/japan-crying-3ov9jUBdDA5FFFITOU"
         ]
 
