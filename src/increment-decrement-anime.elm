@@ -1,0 +1,1 @@
+-- Button to go through the catalog of anime one at a time (combining button example with http example)

@@ -7,6 +7,7 @@
 --  Http error to string by bdukes
 --    https://stackoverflow.com/questions/56442885/error-when-convert-http-error-to-string-with-tostring-in-elm-0-19
 
+module Main exposing (..)
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
