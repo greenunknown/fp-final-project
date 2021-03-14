@@ -15,4 +15,13 @@ Contributions:
 * Currently "random" is not really random because it is initialized from a seed. This leads to the same "random" sequence of anime being suggested everytime. Further work to replace `Random.step` with `Random.generate` is required.
 * Issues from the API/inexperience with the API:
   * There are gaps in the Anime ID range which cause issues with fetching data. Future work may use a list of values for the random range that are valid rather than just an arbitrary range. In addition, a solution may already exist that has not been implemented here.
-* 
+
+
+## Resources I Used
+
+### Learning Elm
+
+* [guide.elm-lang.org](https://guide.elm-lang.org/)
+* [elmprogramming.com][https://elmprogramming.com/]
+* [Elm crash course - Building unbreakable webapps fast](https://www.youtube.com/watch?v=kEitFAY7Gc8) 
+* [Elm Packages](https://package.elm-lang.org/)
