@@ -1,5 +1,7 @@
 # Random Anime Finder in Elm
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/cf0bdd88-a996-4bdc-a235-015e521429e6/deploy-status)](https://app.netlify.com/sites/elastic-johnson-128b0c/deploys)
+
 Author: Brandon Le
 
 Contributions:
@@ -25,3 +27,8 @@ Contributions:
 * [elmprogramming.com][https://elmprogramming.com/]
 * [Elm crash course - Building unbreakable webapps fast](https://www.youtube.com/watch?v=kEitFAY7Gc8) 
 * [Elm Packages](https://package.elm-lang.org/)
+
+### API
+
+* [Kitsu](https://hummingbird-me.github.io/api-docs/)
+* [Jikan](https://jikan.docs.apiary.io/#reference/0/character)
