@@ -1,4 +1,4 @@
--- Press a button to send a GET request for random anime.
+-- Press a button to send a GET request for a random anime.
 -- Author: Brandon Le
 -- Contributions: 
 --  Instructor Casamento for help on the randomize mechanism and general Elm help
