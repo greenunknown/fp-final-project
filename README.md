@@ -34,6 +34,11 @@ The `src/Main.elm` file is where most of my efforts were put whereas the other `
   * Implement an anime search function
   * Deploy my Elm web app on Netlify
 
+### Screenshots
+
+* ![Successful Random Anime](fp-success-get.png)
+* ![Failed Random Anime](fp-fail-get.png)
+
 ## Limitations
 
 * Currently "random" is not really random because it is initialized from a seed. This leads to the same "random" sequence of anime being suggested everytime. Further work to replace `Random.step` with `Random.generate` is required.
@@ -46,7 +51,7 @@ The `src/Main.elm` file is where most of my efforts were put whereas the other `
 ### Learning Elm
 
 * [guide.elm-lang.org](https://guide.elm-lang.org/)
-* [elmprogramming.com][https://elmprogramming.com/]
+* [elmprogramming.com](https://elmprogramming.com/)
 * [Elm crash course - Building unbreakable webapps fast](https://www.youtube.com/watch?v=kEitFAY7Gc8) 
 * [Elm Packages](https://package.elm-lang.org/)
 
