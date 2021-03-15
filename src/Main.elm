@@ -124,25 +124,12 @@ viewImg : Model -> Html Msg
 viewImg model =
   case model.status of
     Failure err ->
-      -- div []
-      --   [ text ("I could not load a random anime for some reason. You've found an empty entry! 😅 \nError: " ++ err)
-      --   , button [ onClick MorePlease, style "font-family" "Helvetica" ] [ text "Try Again!" ]
-      --   , img [ src "src/sadness.gif"] []
-      --   , text "Image Source: https://giphy.com/gifs/japan-crying-3ov9jUBdDA5FFFITOU"
-      --   ]
       viewFailure err
 
     Loading ->
       text "Loading..."
 
     Success url ->
-      -- div []
-      --   [ button [ onClick MorePlease, style "display" "block" ] [ text "Randomize" ]
-      --   , text ("Anime ID: " ++ url.id)
-      --   , h2 [] [ text url.title ]
-      --   , img [ src url.imageUrl ] []
-      --   , text url.description
-      --   ]
       div []
         [ button [ onClick MorePlease, style "display" "block" ] [ text "Randomize" ]
         , img [ src url.imageUrl ] []
